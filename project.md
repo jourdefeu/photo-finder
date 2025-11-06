@@ -160,6 +160,8 @@ photofinder/
 | `user_photos` | Связь `user_id ↔ photo_id` |
 | `upload_batches` | Источники загрузки (батчи из Я.Диска и т.п.) |
 
+## Cодержание таблиц
+
 **`users`**
 | user_id | mean_embedding     |
 |----------|------------|

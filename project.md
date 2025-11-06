@@ -9,7 +9,7 @@
 ## 📁 Файловая структура проекта
 
 ```
-facefinder/
+photofinder/
 ├── docker-compose.yml
 ├── requirements.txt
 ├── README.md

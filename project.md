@@ -69,8 +69,8 @@ photofinder/
 │   │   │   │   ├── 15.jpg
 │   │   │   │   ├── 19.jpg
 │   │   └── thumbnails/           # Сжатые/уменьшенные версии фото для быстрой загрузки (например, для админки или превью)
-│   ├── faiss/
-│   └── temp/
+│   ├── faiss/                    # Бинарные файлы индекса FAISS
+│   └── temp/                     # Временные файлы от Telegram-бота
 
 └── tests/
     ├── test_api.py
@@ -159,6 +159,26 @@ photofinder/
 | `users` | Уникальные пользователи (усреднённые эмбеддинги) |
 | `user_photos` | Связь `user_id ↔ photo_id` |
 | `upload_batches` | Источники загрузки (батчи из Я.Диска и т.п.) |
+
+**`users`**
+| user_id | mean_embedding     |
+|----------|------------|
+| 1       | [0.12, 0.34,...]   |
+| 2       | [0.98, 0.11,...]   |
+
+**`photos`**
+| photo_id| file_path                     | meta    |
+|----------|------------|----------|
+| 101     | data/photos/raw_uploads/101.jpg| {...}  |
+| 102     | data/photos/raw_uploads/102.jpg| {...}  |
+| 103     | data/photos/users/1/103.jpg    | {...}  |
+
+**`user_photos`**
+| user_id | photo_id| faces_on_photo   |
+|----------|------------|----------|
+| 1       | 103     | [501,502]        |
+| 2       | 101     | [503]            |
+| 2       | 102     | [504,505]        |
 
 ---
 

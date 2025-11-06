@@ -55,7 +55,7 @@ photofinder/
 ├── scripts/                      # Вспомогательные скрипты
 │   ├── init_db.py                # Первичная инициализация таблиц
 │   ├── rebuild_faiss.py          # Перестроение индекса
-│   ├── load_from_yadisk.py       # Загрузка фото с Я.Диска
+│   ├── load_from_googledrive.py  # Загрузка фото с Google.Диска
 │   └── import_batch.py           # Добавление батча в очередь
 
 ├── data/

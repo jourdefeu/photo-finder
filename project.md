@@ -169,11 +169,18 @@ photofinder/
 | 2       | [0.98, 0.11,...]   |
 
 **`photos`**
-| photo_id| file_path                     | meta    |
-|----------|------------|----------|
-| 101     | data/photos/raw_uploads/101.jpg| {...}  |
-| 102     | data/photos/raw_uploads/102.jpg| {...}  |
-| 103     | data/photos/users/1/103.jpg    | {...}  |
+| photo_id| file_path                     | meta    | batch_id   |
+|----------|------------|----------|------------|
+| 101     | data/photos/raw_uploads/101.jpg| {...}  | 1          |
+| 102     | data/photos/raw_uploads/102.jpg| {...}  | 1          |
+| 103     | data/photos/users/1/103.jpg    | {...}  | 2          |
+
+**`faces`**
+| face_id | photo_id| bbox               | embedding          |
+|----------|------------|----------|------------|
+| 501     | 101     | [x1,y1,x2,y2]      | [0.12, 0.34,...]  |
+| 502     | 103     | [x1,y1,x2,y2]      | [0.23, 0.45,...]  |
+| 503     | 102     | [x1,y1,x2,y2]      | [0.98, 0.11,...]  |
 
 **`user_photos`**
 | user_id | photo_id| faces_on_photo   |
@@ -181,6 +188,12 @@ photofinder/
 | 1       | 103     | [501,502]        |
 | 2       | 101     | [503]            |
 | 2       | 102     | [504,505]        |
+
+**`upload_batches`**
+| batch_id| source                   | upload_date       |
+|----------|------------|----------|
+| 1       | YandexDisk/Batch1        | 2025-11-01        |
+| 2       | YandexDisk/Batch2        | 2025-11-02        |
 
 ---
 

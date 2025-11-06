@@ -55,7 +55,7 @@ photofinder/
 ├── scripts/                      # Вспомогательные скрипты
 │   ├── init_db.py                # Первичная инициализация таблиц
 │   ├── rebuild_faiss.py          # Перестроение индекса
-│   ├── load_from_googledrive.py  # Загрузка фото с Google.Диска
+│   ├── load_from_ggldrive.py     # Загрузка фото с Google.Диска
 │   └── import_batch.py           # Добавление батча в очередь
 
 ├── data/
@@ -145,7 +145,7 @@ photofinder/
 | --------------------- | ---------------------------------------------------- |
 | `init_db.py`          | Создание таблиц (через SQLAlchemy/Alembic)           |
 | `rebuild_faiss.py`    | Перестраивает FAISS индекс из БД заново              |
-| `load_from_yadisk.py` | Подключение к Яндекс.Диску API, скачивание файлов    |
+| `load_from_ggldrive.py` | Подключение к Google.Диску API, скачивание файлов    |
 | `import_batch.py`     | Формирует batch и добавляет задачу в очередь воркера |
 
 ---
@@ -193,8 +193,8 @@ photofinder/
 **`upload_batches`**
 | batch_id| source                   | upload_date       |
 |----------|------------|----------|
-| 1       | YandexDisk/Batch1        | 2025-11-01        |
-| 2       | YandexDisk/Batch2        | 2025-11-02        |
+| 1       | GoogleDrive/Batch1        | 2025-11-01        |
+| 2       | GoogleDrive/Batch2        | 2025-11-02        |
 
 ---
 

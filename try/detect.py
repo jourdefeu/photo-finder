@@ -119,6 +119,30 @@ class FaceDetector:
         print(f"✅ Всего выровненных лиц: {len(aligned_faces_info)} в {os.path.basename(input_path)}")
         return aligned_faces_info
 
+    def align_detected(self, input_path):
+        """
+        Получение вектора загружаемого пользователем фото.
+        """
+        img = cv2.imread(input_path)
+        if img is None:
+            print(f"⚠️ Не удалось прочитать {input_path}")
+            return []  # return False
+
+        faces = self.app.get(img)
+        aligned_faces_info = []
+
+        for i, face in enumerate(faces):
+
+            aligned_faces_info.append({
+                "photo_id": os.path.splitext(os.path.basename(input_path))[0],
+                "bbox": face.bbox.tolist(),
+                "pose": tuple(face.pose) if face.pose is not None else (0,0,0),
+                "embedding": face.embedding
+            })
+
+        print(f"✅ Всего выровненных лиц: {len(aligned_faces_info)} в {os.path.basename(input_path)}")
+        return aligned_faces_info
+
 def frontalize_face(img, landmarks_3d):
     """
     Простейшая 3D-фронтализация по landmark_3d_68.

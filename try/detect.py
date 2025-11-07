@@ -5,9 +5,10 @@ import traceback
 from insightface.app import FaceAnalysis
 from insightface.utils import face_align
 
-# ограничиваем CPU до ~70%
-cpu_count = max(1, int(os.cpu_count() * 0.7))
-os.environ["OMP_NUM_THREADS"] = str(cpu_count)
+# ----- ограничить CPU -----
+
+# ----- попробовать пойти путем 1) обрезки, 2) выравнивания -----
+# --------------- не рубить сразу landmark ---------------
 
 class FaceDetector:
     def __init__(self, device="cpu", yaw_threshold=30):
@@ -68,18 +69,19 @@ class FaceDetector:
             # bbox для лица
             x1, y1, x2, y2 = face.bbox.astype(int)
             
-            # проверяем landmarks
-            landmark = face.landmark_2d_5 if face.landmark_2d_5 is not None else None
-
-            if landmark is not None:
-                try:
-                    # нормальное выравнивание через norm_crop
-                    aligned_face = face_align.norm_crop(img, landmark=landmark)
-                except Exception as e:
-                    print(f"⚠️ Не удалось выровнять лицо {i+1}, fallback на bbox: {e}")
+            try:
+                # ✅ предпочтительный способ: использовать встроенное выравнивание InsightFace
+                if hasattr(face, "aligned_face") and face.aligned_face is not None:
+                    aligned_face = face.aligned_face
+                # ⚙️ если нет aligned_face, пробуем выровнять вручную
+                elif face.landmark_2d_5 is not None:
+                    landmark = face.landmark_2d_5.astype("float32")
+                    aligned_face = face_align.norm_crop(img, landmark)
+                else:
+                    # fallback: просто crop по bbox
                     aligned_face = img[y1:y2, x1:x2]
-            else:
-                # fallback: просто crop по bbox
+            except Exception as e:
+                print(f"⚠️ Не удалось выровнять лицо {i+1}, fallback на bbox: {e}")
                 aligned_face = img[y1:y2, x1:x2]
 
             out_file = os.path.join(
@@ -99,3 +101,29 @@ class FaceDetector:
         print(f"✅ Всего выровненных лиц: {len(aligned_faces_info)} в {os.path.basename(input_path)}")
         return aligned_faces_info
 
+if __name__ == "__main__":
+    detector = FaceDetector(device="cpu")
+
+    input_dir = "try/photos/raw"
+    detected_dir = "try/photos/detected"
+    aligned_dir = "try/photos/aligned"
+
+    os.makedirs(detected_dir, exist_ok=True)
+    os.makedirs(aligned_dir, exist_ok=True)
+
+    # проход по всем изображениям
+    for filename in os.listdir(input_dir):
+        if filename.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+            in_path = os.path.join(input_dir, filename)
+            out_path = os.path.join(detected_dir, filename)
+
+            # детекция и рамки
+            success = detector.detect_and_draw(in_path, out_path)
+            if success:
+                print(f"💾 Фото с обнаруженными лицами сохранено: {out_path}")
+
+                # выравнивание и сохранение отдельных лиц
+                # для каждого исходного фото будет своя подпапка с выровненными лицами
+                aligned_dir_for_file = os.path.join(aligned_dir, os.path.splitext(filename)[0])
+                os.makedirs(aligned_dir_for_file, exist_ok=True)
+                detector.align_from_detected(in_path, aligned_dir_for_file)

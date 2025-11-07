@@ -25,12 +25,11 @@ if __name__ == "__main__":
                 print(f"💾 Фото с обнаруженными лицами сохранено: {out_path}")
 
                 # -- выравнивание и сохранение отдельных лиц
-                # ------ для каждого исходного фото будет своя подпапка с выровненными лицами
                 # -- получение эмбеддингов
-                aligned_dir_for_file = os.path.join(aligned_dir, os.path.splitext(filename)[0])
-                os.makedirs(aligned_dir_for_file, exist_ok=True)
+                # aligned_dir_for_file = os.path.join(aligned_dir, os.path.splitext(filename)[0])
+                # os.makedirs(aligned_dir_for_file, exist_ok=True)
 
-                aligned_faces_info = detector.align_from_detected(in_path, aligned_dir_for_file)
+                aligned_faces_info = detector.align_detected(in_path)
 
                 # -- добавляем эмбеддинги в векторную базу
                 db.add_from_aligned_info(aligned_faces_info)

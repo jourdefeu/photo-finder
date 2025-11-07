@@ -32,7 +32,7 @@ class FaceDetector:
             return False
 
         faces = self.app.get(img)
-        print(f"📸 {os.path.basename(input_path)} → найдено {len(faces)} лиц")
+        # print(f"📸 {os.path.basename(input_path)} → найдено {len(faces)} лиц")
 
         # рисуем рамки вокруг лиц
         for i, face in enumerate(faces):
@@ -129,6 +129,8 @@ class FaceDetector:
             return []  # return False
 
         faces = self.app.get(img)
+        print(f"📸 {os.path.basename(input_path)} → найдено {len(faces)} лиц")
+
         aligned_faces_info = []
 
         for i, face in enumerate(faces):

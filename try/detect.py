@@ -64,22 +64,39 @@ class FaceDetector:
 
         faces = self.app.get(img)
         aligned_faces_info = []
+        image_size = 112
 
         for i, face in enumerate(faces):
             # bbox для лица
             x1, y1, x2, y2 = face.bbox.astype(int)
             
             try:
-                # ✅ предпочтительный способ: использовать встроенное выравнивание InsightFace
-                if hasattr(face, "aligned_face") and face.aligned_face is not None:
+                # 3D landmark 
+                if hasattr(face, "landmark_3d_68") and face.landmark_3d_68 is not None:
+                    lm3d = face.landmark_3d_68.astype(np.float32)
+                    frontal_img = frontalize_face(img, lm3d)
+                    aligned_face = frontal_img[y1:y2, x1:x2]
+
+                # 106-точечные landmark'и
+                elif hasattr(face, "landmark_2d_106") and face.landmark_2d_106 is not None:
+                    lm = face.landmark_2d_106.astype(np.float32)
+                    landmark_5 = np.array([
+                        lm[38],   # левый глаз
+                        lm[88],   # правый глаз
+                        lm[86],   # нос
+                        lm[52],   # левый угол рта
+                        lm[61]    # правый угол рта
+                    ], dtype=np.float32)
+                    aligned_face = face_align.norm_crop(img, landmark_5, image_size=image_size)
+
+                # встроенное выравнивание InsightFace
+                elif hasattr(face, "aligned_face") and face.aligned_face is not None:
                     aligned_face = face.aligned_face
-                # ⚙️ если нет aligned_face, пробуем выровнять вручную
-                elif face.landmark_2d_5 is not None:
-                    landmark = face.landmark_2d_5.astype("float32")
-                    aligned_face = face_align.norm_crop(img, landmark)
+ 
                 else:
                     # fallback: просто crop по bbox
                     aligned_face = img[y1:y2, x1:x2]
+
             except Exception as e:
                 print(f"⚠️ Не удалось выровнять лицо {i+1}, fallback на bbox: {e}")
                 aligned_face = img[y1:y2, x1:x2]
@@ -92,6 +109,7 @@ class FaceDetector:
             print(f"💾 Сохранено лицо: {out_file}")
 
             aligned_faces_info.append({
+                "photo_id": os.path.splitext(os.path.basename(input_path))[0],
                 "bbox": face.bbox.tolist(),
                 "pose": tuple(face.pose) if face.pose is not None else (0,0,0),
                 "aligned_path": out_file,
@@ -100,6 +118,30 @@ class FaceDetector:
 
         print(f"✅ Всего выровненных лиц: {len(aligned_faces_info)} в {os.path.basename(input_path)}")
         return aligned_faces_info
+
+def frontalize_face(img, landmarks_3d):
+    """
+    Простейшая 3D-фронтализация по landmark_3d_68.
+    Не строит полную 3D-модель, но компенсирует поворот головы.
+    """
+    # Центр лица (среднее по x,y)
+    center = np.mean(landmarks_3d[:, :2], axis=0)
+
+    # Оси головы
+    x_axis = landmarks_3d[45][:3] - landmarks_3d[36][:3]  # от левого до правого глаза
+    x_axis /= np.linalg.norm(x_axis)
+    y_axis = landmarks_3d[30][:3] - landmarks_3d[8][:3]   # от подбородка к носу
+    y_axis /= np.linalg.norm(y_axis)
+    z_axis = np.cross(x_axis, y_axis)
+    R = np.stack([x_axis, y_axis, z_axis], axis=1)
+
+    # Простейшая "фронтализация": применим поворот обратно к изображению
+    # (упрощённо через warpAffine; для идеала можно использовать warpPerspective)
+    h, w = img.shape[:2]
+    warp_mat = cv2.getRotationMatrix2D(tuple(center), 0, 1.0)
+    aligned = cv2.warpAffine(img, warp_mat, (w, h), flags=cv2.INTER_LINEAR)
+
+    return aligned
 
 if __name__ == "__main__":
     detector = FaceDetector(device="cpu")

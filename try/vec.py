@@ -26,10 +26,9 @@ class FaceEmbeddingDatabase:
             self.meta.append({
                 "photo_id": face_info["photo_id"],
                 "bbox": face_info["bbox"],
-                "pose": face_info["pose"],
-                "aligned_path": face_info["aligned_path"]
+                "pose": face_info["pose"]
             })
-        print('⬈ Эмбеддинги сохранены.')
+        print(f'⬈ Сохранено {len(aligned_faces_info)} векторов лиц')
             
     def _pairwise_similarities(self):
         """Вычисляет попарные косинусные схожести."""
@@ -104,3 +103,15 @@ class FaceEmbeddingDatabase:
             json.dump(meta, f, ensure_ascii=False, indent=2)
 
         print(f"✅ Сохранено {len(avg_vecs)} усреднённых лиц в {save_dir}")
+
+if __name__ == "__main__":
+    db = FaceEmbeddingDatabase(threshold=0.6)
+
+    # допустим, у тебя уже есть результаты после align_from_detected
+    for filename in os.listdir("try/photos/aligned"):
+        photo_id = os.path.splitext(filename)[0]
+        aligned_faces_info = ...  # список, возвращаемый align_from_detected
+        db.add_from_aligned_info(aligned_faces_info, photo_id)
+
+    # кластеризация и сохранение базы
+    db.save_database("try/vector_db")

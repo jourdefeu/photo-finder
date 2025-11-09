@@ -1,6 +1,7 @@
 import os
 import logging
 import sys
+import asyncio
 from dotenv import load_dotenv
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
@@ -17,7 +18,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-BOT_TOKEN = os.getenv(BOT_TOKEN)
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 TEMP_DIR = "data/photos/temporary"   # путь к временному хранилищу фоток, отправляемых пользователями
 
 def get_main_keyboard():
@@ -54,7 +55,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # сохранить фото
     file_path = os.path.join(TEMP_DIR, f"{photo.file_id}.jpg")
-    await file.download(file_path)
+    await file.download_to_drive(file_path)
 
     # Отправляем сообщение о поиске
     sent_message = await update.message.reply_text(
@@ -113,9 +114,6 @@ async def send_photos_from_folder(update: Update, context: ContextTypes.DEFAULT_
                 await update.message.reply_text(error_msg, reply_markup=reply_markup)
             return
 
-        # Ограничиваем количество фото (например, отправляем первые 5)
-        photo_files = photo_files[:5]
-
         # Удаляем сообщение "Подождите секундочку..."
         if sent_message:
             try:
@@ -123,22 +121,25 @@ async def send_photos_from_folder(update: Update, context: ContextTypes.DEFAULT_
             except:
                 pass
 
-        # Отправляем фото как файлы (document) для сохранения качества
-        successful_count = 0
-        for photo_file in photo_files:
+        # Функция для отправки одного фото
+        async def send_single_photo(photo_file):
             photo_path = os.path.join(folder_path, photo_file)
             try:
                 with open(photo_path, 'rb') as photo:
-                    # Отправляем как документ (файл) для сохранения качества
                     await update.message.reply_document(
                         document=photo,
                         filename=photo_file
                     )
-                    logger.info(f"Отправлено фото как файл: {photo_file}")
-                    successful_count += 1
+                logger.info(f"Отправлено фото как файл: {photo_file}")
+                return True
             except Exception as e:
                 logger.error(f"Ошибка при отправке фото {photo_file}: {e}")
-                await update.message.reply_text(f"Не удалось отправить фото: {photo_file}")
+                return False
+
+        # Отправляем все фото параллельно
+        tasks = [send_single_photo(photo_file) for photo_file in photo_files]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        successful_count = sum(1 for r in results if r is True)
 
         if successful_count > 0:
             await update.message.reply_text(f"Отправлено {successful_count} фото!")

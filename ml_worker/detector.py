@@ -5,11 +5,6 @@ import traceback
 from insightface.app import FaceAnalysis
 from insightface.utils import face_align
 
-# ----- ограничить CPU -----
-
-# ----- попробовать пойти путем 1) обрезки, 2) выравнивания -----
-# --------------- не рубить сразу landmark ---------------
-
 class FaceDetector:
     def __init__(self, device="cpu", yaw_threshold=30):
         """
@@ -32,9 +27,8 @@ class FaceDetector:
             return False
 
         faces = self.app.get(img)
-        print(f"📸 {os.path.basename(input_path)} → найдено {len(faces)} лиц")
 
-        if output_path is not None:
+        if output_path not None:
             # рисуем рамки вокруг лиц
             for i, face in enumerate(faces):
                 x1, y1, x2, y2 = face.bbox.astype(int)
@@ -66,7 +60,7 @@ class FaceDetector:
             return []  # return False
 
         faces = self.app.get(img)
-        # print(f"📸 {os.path.basename(input_path)} → найдено {len(faces)} лиц")
+        print(f"📸 {os.path.basename(input_path)} → найдено {len(faces)} лиц")
 
         aligned_faces_info = []
 
@@ -81,4 +75,3 @@ class FaceDetector:
 
         print(f"✅ Всего найденных лиц: {len(aligned_faces_info)} в {os.path.basename(input_path)}")
         return aligned_faces_info
-

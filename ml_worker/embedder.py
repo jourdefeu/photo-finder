@@ -2,7 +2,6 @@ import faiss
 import numpy as np
 import json
 import os
-import uuid
 from collections import defaultdict
 
 class FaceEmbeddingDatabaseFAISS:

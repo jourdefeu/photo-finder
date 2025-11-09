@@ -22,7 +22,7 @@ class FaceDetector:
         self.yaw_threshold = yaw_threshold
         print(f"✅ FaceDetector initialized (device={device})")
 
-    def detect_and_draw(self, input_path, output_path):
+    def detect_and_draw(self, input_path, output_path=None):
         """
         Находит лица на фото и сохраняет копию с нарисованными рамками.
         """
@@ -32,25 +32,27 @@ class FaceDetector:
             return False
 
         faces = self.app.get(img)
-        # print(f"📸 {os.path.basename(input_path)} → найдено {len(faces)} лиц")
 
-        # рисуем рамки вокруг лиц
-        for i, face in enumerate(faces):
-            x1, y1, x2, y2 = face.bbox.astype(int)
-            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(
-                img,
-                f"face {i+1}",
-                (x1, y1 - 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                (0, 255, 0),
-                2,
-            )
+        if output_path is not None:
+            # рисуем рамки вокруг лиц
+            for i, face in enumerate(faces):
+                x1, y1, x2, y2 = face.bbox.astype(int)
+                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.putText(
+                    img,
+                    f"face {i+1}",
+                    (x1, y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (0, 255, 0),
+                    2,
+                )
 
-        # сохраняем изображение с рамками
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        cv2.imwrite(output_path, img)
+            # сохраняем изображение с рамками
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            cv2.imwrite(output_path, img)
+            print(f"💾 Фото с обнаруженными лицами сохранено: {output_path}")
+
         return True
 
     def align_from_detected(self, input_path, output_path):

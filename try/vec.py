@@ -2,7 +2,6 @@ import faiss
 import numpy as np
 import json
 import os
-import uuid
 from collections import defaultdict
 
 class FaceEmbeddingDatabaseFAISS:
@@ -75,16 +74,16 @@ class FaceEmbeddingDatabaseFAISS:
         averaged_vectors = []
         cluster_metadata = []
 
-        for c_id, indices in clusters.items():
+        for rank, (c_id, indices) in enumerate(clusters.items(), start=1):
             cluster_vecs = [emb_mat[i] for i in indices]
             avg_vec = np.mean(cluster_vecs, axis=0)
             avg_vec /= np.linalg.norm(avg_vec)
             averaged_vectors.append(avg_vec)
 
             cluster_metadata.append({
-                "cluster_id": str(uuid.uuid4()),
-                "photo_ids": [self.meta[i]["photo_id"] for i in indices],
-                "count": len(indices)                # количество лиц (векторов), вошедших в данный кластер
+                "user_id": f"{rank:05d}",  # '00001', '00002', ...
+                "photo_ids": [self.meta[i]["photo_id"] for i in indices],    # ["img_001", "img_002"]
+                "count": len(indices)      # количество лиц (векторов), вошедших в данный кластер
             })
 
         return averaged_vectors, cluster_metadata

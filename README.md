@@ -27,6 +27,7 @@ photo_finder\Scripts\activate
 pip install -r requirements.txt
 ```
 
+---
 
 ### 2. Загрузка фотографий
 

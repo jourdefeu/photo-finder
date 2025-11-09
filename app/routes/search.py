@@ -5,13 +5,13 @@ import faiss
 import numpy as np
 from ..ml_worker.detector import FaceDetector      # класс-детект
 
-def vectorize_face(filename):             #  img_334.jpg
+def vectorize_face(filename):                             #  img_334.jpg
     detector = FaceDetector(device="cpu")
 
-    vector_dir = "data/vectors"               # путь к FAISS базе
-    users_dir = "data/photos/users"           # путь к фоткам
-    temporary_dir = "data/photos/temporary"   # путь к временному хранилищу фоток, отправляемых пользователями
-    input_path = os.path.join(temporary_dir, filename)
+    vector_dir = "data/vectors"                           # путь к FAISS базе
+    users_dir = "data/photos/users"                       # путь к фоткам
+    temporary_dir = "data/photos/temporary"               # путь к временному хранилищу фоток, отправляемых пользователями
+    input_path = os.path.join(temporary_dir, filename)    # ./путь/img_334.jpg
 
     os.makedirs(temporary_dir, exist_ok=True)
 

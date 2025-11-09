@@ -8,7 +8,7 @@
 
 В .env хранятся:
 - `SERVICE_ACCOUNT_FILE="credentials.json"`
-- BOT_TOKEN
+- `BOT_TOKEN`
 
 ### 1. Настройка окружения
 

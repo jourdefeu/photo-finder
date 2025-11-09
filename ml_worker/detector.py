@@ -22,7 +22,7 @@ class FaceDetector:
         self.yaw_threshold = yaw_threshold
         print(f"✅ FaceDetector initialized (device={device})")
 
-    def is_detect(self, input_path):
+    def is_detect(self, input_path, output_path=None):
         """
         Находит лица на фото, возвращает true/false.
         """
@@ -33,6 +33,26 @@ class FaceDetector:
 
         faces = self.app.get(img)
         print(f"📸 {os.path.basename(input_path)} → найдено {len(faces)} лиц")
+
+        if output_path not None:
+            # рисуем рамки вокруг лиц
+            for i, face in enumerate(faces):
+                x1, y1, x2, y2 = face.bbox.astype(int)
+                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.putText(
+                    img,
+                    f"face {i+1}",
+                    (x1, y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (0, 255, 0),
+                    2,
+                )
+
+            # сохраняем изображение с рамками
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            cv2.imwrite(output_path, img)
+            print(f"💾 Фото с обнаруженными лицами сохранено: {output_path}")
 
         return True
 
@@ -59,5 +79,5 @@ class FaceDetector:
                 "embedding": face.embedding
             })
 
-        print(f"✅ Всего выровненных лиц: {len(aligned_faces_info)} в {os.path.basename(input_path)}")
+        print(f"✅ Всего найденных лиц: {len(aligned_faces_info)} в {os.path.basename(input_path)}")
         return aligned_faces_info

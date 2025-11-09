@@ -5,11 +5,6 @@ import traceback
 from insightface.app import FaceAnalysis
 from insightface.utils import face_align
 
-# ----- ограничить CPU -----
-
-# ----- попробовать пойти путем 1) обрезки, 2) выравнивания -----
-# --------------- не рубить сразу landmark ---------------
-
 class FaceDetector:
     def __init__(self, device="cpu", yaw_threshold=30):
         """

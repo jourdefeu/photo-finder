@@ -3,7 +3,7 @@ import os
 import json
 import faiss
 import numpy as np
-from detector import FaceDetector             # класс-детект
+from ml_worker.detector import FaceDetector             # класс-детект
 
 def vectorize_face(input_path):               # ./путь/img_334.jpg
     detector = FaceDetector(device="cpu")
@@ -25,7 +25,7 @@ def vectorize_face(input_path):               # ./путь/img_334.jpg
         # -- выравнивание лица и получение эмбеддинга
         aligned_face_info = detector.align_detected(input_path)
 
-        emb = np.array(aligned_face_info["embedding"], dtype=np.float32)
+        emb = np.array(aligned_face_info[0]["embedding"], dtype=np.float32)
         emb /= np.linalg.norm(emb)   # нормализуем для cosine similarity
 
         # -- удаление исходного фото
@@ -40,16 +40,36 @@ def vectorize_face(input_path):               # ./путь/img_334.jpg
 
         index = faiss.read_index(faiss_index_path)
 
+        # -- проверка, что индекс не пуст
+        if index.ntotal == 0:
+            print("❌ FAISS индекс пуст")
+            return None
+
         # -- загрузка метаданных
         metadata_path = os.path.join(vector_dir, "metadata.json")
 
+        if not os.path.exists(metadata_path):
+            print("❌ Файл метаданных не найден")
+            return None
+
         with open(metadata_path, "r", encoding="utf-8") as f:
             meta = json.load(f)
+
+        # -- проверка синхронизации индекса и метаданных
+        if len(meta) != index.ntotal:
+            print(f"⚠️ Несоответствие: индекс содержит {index.ntotal} векторов, а метаданных {len(meta)}")
+            return None
 
         # -- поиск ближайшего вектора
         sims, idxs = index.search(emb.reshape(1, -1), k=1)
         best_sim = float(sims[0][0])
         best_idx = int(idxs[0][0])
+
+        # -- проверка валидности индекса
+        if best_idx < 0 or best_idx >= len(meta):
+            print(f"⚠️ Невалидный индекс: {best_idx} (размер метаданных: {len(meta)})")
+            return None
+
         best_meta = meta[best_idx]
 
         print(f"✅ Найден ближайший кластер с similarity={best_sim:.4f}")
@@ -77,10 +97,13 @@ def vectorize_face(input_path):               # ./путь/img_334.jpg
             print(f"⚠️ Папка {user_folder} не найдена")
 
         # -- возвращаем результат
-        return {
+        data = {
             "similarity": best_sim,
             "cluster_meta": best_meta,
             "user_id": best_meta["user_id"],
             "user_folder": user_folder,
             "user_photos": user_photos
         }
+
+        print(f"Папка пользователя: {data['user_folder']}")
+        return data

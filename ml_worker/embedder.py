@@ -86,6 +86,7 @@ class FaceEmbeddingDatabaseFAISS:
                 "count": len(indices)      # количество лиц (векторов), вошедших в данный кластер
             })
 
+
         return averaged_vectors, cluster_metadata
 
     def save_database(self, save_dir):
@@ -103,7 +104,7 @@ class FaceEmbeddingDatabaseFAISS:
         index.add(np.array(avg_vecs, dtype=np.float32))
 
         # сохраняем FAISS индекс
-        faiss.write_index(self.index, os.path.join(save_dir, "faiss_index.idx"))
+        faiss.write_index(index, os.path.join(save_dir, "faiss_index.idx"))
 
         # сохраняем метаданные (photo_ids, cluster_id и т.п.)
         with open(os.path.join(save_dir, "metadata.json"), "w", encoding="utf-8") as f:

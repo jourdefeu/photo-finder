@@ -28,7 +28,7 @@ class FaceDetector:
 
         faces = self.app.get(img)
 
-        if output_path not None:
+        if output_path is not None:
             # рисуем рамки вокруг лиц
             for i, face in enumerate(faces):
                 x1, y1, x2, y2 = face.bbox.astype(int)

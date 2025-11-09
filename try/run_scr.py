@@ -12,9 +12,9 @@ def save_user_photos(cluster_metadata, raw_photos_dir, users_dir):
     """
     os.makedirs(users_dir, exist_ok=True)
 
-    for user_idx, cluster in enumerate(cluster_metadata, 1):
-        # можно использовать cluster_id или просто user_1, user_2...
-        user_folder = os.path.join(users_dir, f"user_{user_idx}")
+    for _, cluster in enumerate(cluster_metadata, 1):
+        user_id = cluster["user_id"]
+        user_folder = os.path.join(users_dir, f"user_{user_id}")
         os.makedirs(user_folder, exist_ok=True)
 
         # чтобы не копировать одно фото несколько раз
@@ -25,13 +25,18 @@ def save_user_photos(cluster_metadata, raw_photos_dir, users_dir):
                 continue
             seen_photos.add(photo_id)
 
-            src_path = os.path.join(raw_photos_dir, f"{photo_id}.jpg")  # или .png, проверку можно добавить
-            if os.path.exists(src_path):
-                shutil.copy2(src_path, user_folder)
-            else:
-                print(f"⚠️ Фото {src_path} не найдено")
+            # поддержка форматов jpg/jpeg/png/webp
+            found = False
+            for ext in (".jpg", ".jpeg", ".png", ".webp"):
+                src_path = os.path.join(raw_photos_dir, f"{photo_id}{ext}")
+                if os.path.exists(src_path):
+                    shutil.copy2(src_path, user_folder)
+                    found = True
+                    break
+            if not found:
+                print(f"⚠️ Фото {photo_id} не найдено в {raw_photos_dir}")
 
-    print(f"✅ Скопированы фото по {len(cluster_metadata)} пользователям в {users_dir}")
+    print(f"Фото {len(cluster_metadata)} пользователей сохранены в {users_dir}")
 
 if __name__ == "__main__":
     detector = FaceDetector(device="cpu")
@@ -56,8 +61,6 @@ if __name__ == "__main__":
             # -- детекция и рамки
             success = detector.detect_and_draw(in_path, out_path)
             if success:
-                print(f"💾 Фото с обнаруженными лицами сохранено: {out_path}")
-
                 # -- выравнивание и сохранение отдельных лиц
                 # -- получение эмбеддингов
                 # aligned_dir_for_file = os.path.join(aligned_dir, os.path.splitext(filename)[0])

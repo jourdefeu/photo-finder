@@ -9,8 +9,6 @@ from google.oauth2 import service_account
 load_dotenv()
 
 SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE")  # путь к файлу service account
-# ----------- пока что креды мои, но админ должен будет свои подгрузить ------------
-# ----------------- еще надо поставить какие-то по-умолчанию ------------------
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'}
 

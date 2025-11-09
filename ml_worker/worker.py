@@ -1,8 +1,8 @@
 import os
 import shutil
 import json
-from detector import FaceDetector        # класс-детект
-from embedder import FaceEmbeddingDatabaseFAISS  # класс, где реализуется сравнение и усреднение
+from detector import FaceDetector                   # класс-детект
+from embedder import FaceEmbeddingDatabaseFAISS     # класс, где реализуется сравнение и усреднение
 
 def save_user_photos(cluster_metadata, raw_photos_dir, users_dir):
     """
@@ -27,7 +27,7 @@ def save_user_photos(cluster_metadata, raw_photos_dir, users_dir):
 
             # поддержка форматов jpg/jpeg/png/webp
             found = False
-            for ext in (".jpg", ".jpeg", ".png", ".webp"):
+            for ext in ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'):
                 src_path = os.path.join(raw_photos_dir, f"{photo_id}{ext}")
                 if os.path.exists(src_path):
                     shutil.copy2(src_path, user_folder)
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     # проход по всем изображениям
     for filename in os.listdir(input_dir):
-        if filename.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+        if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp')):
             in_path = os.path.join(input_dir, filename)
 
             # -- детекция и рамки

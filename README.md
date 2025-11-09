@@ -6,6 +6,8 @@
 
 ```
 python -m venv photo_finder
+```
+```
 photo_finder\Scripts\activate
 ```
 

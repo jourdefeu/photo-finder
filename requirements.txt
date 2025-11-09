@@ -1,12 +1,23 @@
 # Requires Python >=3.10,<3.13
-psycopg2-binary==2.9.10
-google-auth-oauthlib==1.2.2
+
+# --- Core dependencies ---
+python-dotenv==1.0.1
+matplotlib
+opencv-python
+faiss-cpu
+onnxruntime
+
+# --- Face recognition & embeddings ---
+insightface==0.8.5
+
+# --- Telegram bot ---
+python-telegram-bot
+
+# --- Google API (если используется в боте или интеграциях) ---
 google-api-python-client==2.170.0
+google-auth-oauthlib==1.2.2
 google-auth-httplib2==0.2.0
 httplib2==0.22.0
-python-dotenv==1.0.1
-insightface==0.8.5
-onnxruntime
-opencv-python
-matplotlib
-faiss-cpu
+
+# --- Database ---
+psycopg2-binary==2.9.10

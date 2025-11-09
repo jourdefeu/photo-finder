@@ -5,17 +5,16 @@ import faiss
 import numpy as np
 from ..ml_worker.detector import FaceDetector      # класс-детект
 
-def vectorize_face(filename):                             #  img_334.jpg
+def vectorize_face(input_path):                 # ./путь/img_334.jpg
     detector = FaceDetector(device="cpu")
 
-    vector_dir = "data/vectors"                           # путь к FAISS базе
-    users_dir = "data/photos/users"                       # путь к фоткам
-    temporary_dir = "data/photos/temporary"               # путь к временному хранилищу фоток, отправляемых пользователями
-    input_path = os.path.join(temporary_dir, filename)    # ./путь/img_334.jpg
+    vector_dir = "data/vectors"               # путь к FAISS базе
+    users_dir = "data/photos/users"           # путь к фоткам
+    temporary_dir = "data/photos/temporary"   # путь к временному хранилищу фоток, отправляемых пользователями
 
     os.makedirs(temporary_dir, exist_ok=True)
 
-    if input_path.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+    if input_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp')):
         # -- детекция лица
         success = detector.is_detect(input_path)
 
@@ -26,7 +25,7 @@ def vectorize_face(filename):                             #  img_334.jpg
         # -- выравнивание лица и получение эмбеддинга
         aligned_face_info = detector.align_detected(input_path)
 
-        emb = np.array(aligned_face_info[0]["embedding"], dtype=np.float32)
+        emb = np.array(aligned_face_info["embedding"], dtype=np.float32)
         emb /= np.linalg.norm(emb)   # нормализуем для cosine similarity
 
         # -- удаление исходного фото
@@ -72,7 +71,7 @@ def vectorize_face(filename):                             #  img_334.jpg
         user_photos = []
         if os.path.exists(user_folder):
             for fname in os.listdir(user_folder):
-                if fname.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+                if fname.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp')):
                     user_photos.append(os.path.join(user_folder, fname))
         else:
             print(f"⚠️ Папка {user_folder} не найдена")
@@ -82,5 +81,6 @@ def vectorize_face(filename):                             #  img_334.jpg
             "similarity": best_sim,
             "cluster_meta": best_meta,
             "user_id": best_meta["user_id"],
+            "user_folder": user_folder,
             "user_photos": user_photos
         }

@@ -34,7 +34,7 @@ class FaceDetector:
         faces = self.app.get(img)
         print(f"📸 {os.path.basename(input_path)} → найдено {len(faces)} лиц")
 
-        if output_path not None:
+        if output_path is not None:
             # рисуем рамки вокруг лиц
             for i, face in enumerate(faces):
                 x1, y1, x2, y2 = face.bbox.astype(int)
@@ -81,3 +81,4 @@ class FaceDetector:
 
         print(f"✅ Всего найденных лиц: {len(aligned_faces_info)} в {os.path.basename(input_path)}")
         return aligned_faces_info
+

@@ -1,8 +1,8 @@
 import os
 import shutil
 import json
-from detect import FaceDetector        # твой класс-детект
-from vec import FaceEmbeddingDatabaseFAISS  # класс, где реализуешь сравнение и усреднение
+from detect import FaceDetector                # твой класс-детект
+from vec import FaceEmbeddingDatabaseFAISS     # класс, где реализуешь сравнение и усреднение
 
 def save_user_photos(cluster_metadata, raw_photos_dir, users_dir):
     """
@@ -79,3 +79,4 @@ if __name__ == "__main__":
         cluster_metadata = json.load(f)
 
     save_user_photos(cluster_metadata, input_dir, users_dir)
+

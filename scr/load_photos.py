@@ -12,10 +12,7 @@ SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE")  # путь к файл
 # ----------- пока что креды мои, но админ должен будет свои подгрузить ------------
 # ----------------- еще надо поставить какие-то по-умолчанию ------------------
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
-DOWNLOAD_DIR = "data/photos/raw_uploads"
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'}
-
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 # Авторизация
 credentials = service_account.Credentials.from_service_account_file(
@@ -91,7 +88,10 @@ def download_images_recursively(folder_id, local_path):
                 print(f"{item_name} пропущен (не изображение)")
 
 if __name__ == "__main__":
+    download_dir = "data/photos/raw_uploads"
+    os.makedirs(download_dir, exist_ok=True)
+
     admin_url = input("Вставьте ссылку на папку Google Drive: ")
     folder_id = extract_folder_id_from_url(admin_url)
-    download_images_recursively(folder_id, DOWNLOAD_DIR)
+    download_images_recursively(folder_id, download_dir)
     print("Загрузка завершена.")

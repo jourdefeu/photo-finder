@@ -86,7 +86,6 @@ class FaceEmbeddingDatabaseFAISS:
                 "count": len(indices)      # количество лиц (векторов), вошедших в данный кластер
             })
 
-
         return averaged_vectors, cluster_metadata
 
     def save_database(self, save_dir):

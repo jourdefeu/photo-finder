@@ -26,7 +26,7 @@ def vectorize_face(filename):                             #  img_334.jpg
         # -- выравнивание лица и получение эмбеддинга
         aligned_face_info = detector.align_detected(input_path)
 
-        emb = np.array(aligned_face_info["embedding"], dtype=np.float32)
+        emb = np.array(aligned_face_info[0]["embedding"], dtype=np.float32)
         emb /= np.linalg.norm(emb)   # нормализуем для cosine similarity
 
         # -- удаление исходного фото

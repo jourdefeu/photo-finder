@@ -15,7 +15,7 @@
 Создайте и активируйте виртуальное окружение Python:
 
 ```
-python -m venv photo_finder
+python -m venv photofinder_venv
 ```
 ```
 photo_finder\Scripts\activate

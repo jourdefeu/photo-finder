@@ -3,12 +3,15 @@ import json
 import numpy as np
 import faiss
 from embedder import FaceEmbeddingDatabaseFAISS  # твой класс для работы с FAISS
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Параметры
 SAVE_DIR = "data/vectors"       # FAISS + metadata
 USERS_DIR = "data/photos/users" # куда сохраняем фото по пользователям
 THRESHOLD = 0.6                  # косинусная дистанция для совпадения
-
 
 def update_db(new_face_infos):
     """
@@ -29,11 +32,11 @@ def update_db(new_face_infos):
         db.index = faiss.read_index(faiss_path)
         with open(meta_path, "r", encoding="utf-8") as f:
             db.meta = json.load(f)
-        print(f"✅ Загружена существующая БД: {db.index.ntotal} кластеров из {SAVE_DIR}")
+        logger.info(f"Загружена существующая БД: {db.index.ntotal} кластеров из {SAVE_DIR}")
     else:
         # Создаём новый пустой индекс
         db.index = faiss.IndexFlatIP(512)
-        print(f"📝 Создание новой БД в {SAVE_DIR}")
+        logger.info(f"Создание новой БД в {SAVE_DIR}")
 
     # 2. Сначала сопоставляем каждое новое лицо с существующими пользователями
     unmatched_faces = []  # лица, которые не совпали с существующими пользователями
@@ -71,7 +74,7 @@ def update_db(new_face_infos):
                 cluster_meta["_updated_embedding"] = updated_embedding.tolist()
                 
                 total_photos = len(cluster_meta["photo_ids"])
-                print(f"✅ Обновлён пользователь: {cluster_meta['user_id']} (теперь {total_photos} фото)")
+                logger.info(f"Обновлён пользователь: {cluster_meta['user_id']} (теперь {total_photos} фото)")
                 matched = True
         
         if not matched:
@@ -96,7 +99,7 @@ def update_db(new_face_infos):
                 "count": cluster_meta["count"],
                 "_updated_embedding": new_vec.tolist()
             })
-            print(f"🆕 Добавлен новый пользователь: {new_user_id:05d} ({len(unique_photo_ids)} фото)")
+            logger.info(f"🆕 Добавлен новый пользователь: {new_user_id:05d} ({len(unique_photo_ids)} фото)")
 
     # 5. Пересоздаём FAISS с обновлёнными усреднёнными векторами
     embeddings = []
@@ -123,6 +126,7 @@ def update_db(new_face_infos):
     faiss.write_index(db.index, faiss_path)
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(db.meta, f, ensure_ascii=False, indent=2)
-    print(f"✅ FAISS и метаданные сохранены: {SAVE_DIR}")
+    logger.info(f"FAISS и метаданные сохранены: {SAVE_DIR}")
 
     return db.meta
+

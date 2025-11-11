@@ -2,8 +2,12 @@ import os
 import cv2
 import numpy as np
 import traceback
+import logging
 from insightface.app import FaceAnalysis
 from insightface.utils import face_align
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class FaceDetector:
     def __init__(self, device="cpu", yaw_threshold=30):
@@ -15,7 +19,7 @@ class FaceDetector:
         self.app = FaceAnalysis(name="buffalo_l")
         self.app.prepare(ctx_id=ctx_id)
         self.yaw_threshold = yaw_threshold
-        print(f"✅ FaceDetector initialized (device={device})")
+        logger.info(f"FaceDetector initialized (device={device})")
 
     def is_detect(self, input_path, output_path=None):
         """
@@ -23,7 +27,7 @@ class FaceDetector:
         """
         img = cv2.imread(input_path)
         if img is None:
-            print(f"⚠️ Не удалось прочитать {input_path}")
+            logger.info(f"Не удалось прочитать {input_path}")
             return False
 
         faces = self.app.get(img)
@@ -46,7 +50,7 @@ class FaceDetector:
             # сохраняем изображение с рамками
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             cv2.imwrite(output_path, img)
-            print(f"💾 Фото с обнаруженными лицами сохранено: {output_path}")
+            logger.info(f"💾 Фото с обнаруженными лицами сохранено: {output_path}")
 
         return True
 
@@ -56,11 +60,11 @@ class FaceDetector:
         """
         img = cv2.imread(input_path)
         if img is None:
-            print(f"⚠️ Не удалось прочитать {input_path}")
+            logger.error(f"Не удалось прочитать {input_path}")
             return []  # return False
 
         faces = self.app.get(img)
-        print(f"📸 {os.path.basename(input_path)} → найдено {len(faces)} лиц")
+        logger.info(f"📸 {os.path.basename(input_path)} → найдено {len(faces)} лиц")
 
         aligned_faces_info = []
 
@@ -73,5 +77,6 @@ class FaceDetector:
                 "embedding": face.embedding
             })
 
-        print(f"✅ Всего найденных лиц: {len(aligned_faces_info)} в {os.path.basename(input_path)}")
+        logger.info(f"Всего найденных лиц: {len(aligned_faces_info)} в {os.path.basename(input_path)}")
+
         return aligned_faces_info

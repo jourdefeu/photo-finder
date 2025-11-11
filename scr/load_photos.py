@@ -5,6 +5,10 @@ from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 from google.oauth2 import service_account
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -52,7 +56,7 @@ def list_files_in_folder(folder_id):
 def download_file(file_id, file_path):
     """Скачивает один файл по ID."""
     if os.path.exists(file_path):
-        print(f"{file_path} уже скачан, пропускаем.")
+        logger.info(f"{file_path} уже скачан, пропускаем.")
         return
 
     request = drive_service.files().get_media(fileId=file_id)
@@ -62,8 +66,8 @@ def download_file(file_id, file_path):
     while not done:
         status, done = downloader.next_chunk()
         if status:
-            print(f"{os.path.basename(file_path)}: {int(status.progress() * 100)}% скачано")
-    print(f"{os.path.basename(file_path)} скачан успешно!")
+            logger.info(f"{os.path.basename(file_path)}: {int(status.progress() * 100)}% скачано")
+    logger.info(f"{os.path.basename(file_path)} скачан успешно!")
 
 def download_images_recursively(folder_id, local_path):
     """Рекурсивно скачивает все изображения из папки и подпапок."""
@@ -83,7 +87,7 @@ def download_images_recursively(folder_id, local_path):
             if ext in ALLOWED_EXTENSIONS:
                 download_file(item_id, os.path.join(local_path, item_name))
             else:
-                print(f"{item_name} пропущен (не изображение)")
+                logger.info(f"{item_name} пропущен (не изображение)")
 
 if __name__ == "__main__":
     download_dir = "data/photos/raw_uploads"
@@ -92,4 +96,4 @@ if __name__ == "__main__":
     admin_url = input("Вставьте ссылку на папку Google Drive: ")
     folder_id = extract_folder_id_from_url(admin_url)
     download_images_recursively(folder_id, download_dir)
-    print("Загрузка завершена.")
+    logger.info("Загрузка завершена.")

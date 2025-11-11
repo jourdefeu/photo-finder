@@ -3,6 +3,10 @@ import numpy as np
 import json
 import os
 from collections import defaultdict
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class FaceEmbeddingDatabaseFAISS:
     def __init__(self, embedding_dim=512, threshold=0.6):
@@ -25,7 +29,7 @@ class FaceEmbeddingDatabaseFAISS:
                 "bbox": face_info["bbox"],
                 "pose": face_info["pose"]
             })
-        print(f"⬈ Сохранено {len(aligned_faces_info)} лиц в векторном представлении")
+        logger.info(f"⬈ Сохранено {len(aligned_faces_info)} лиц в векторном представлении")
 
     def cluster_embeddings(self):
         """
@@ -110,5 +114,6 @@ class FaceEmbeddingDatabaseFAISS:
             json.dump(meta, f, ensure_ascii=False, indent=2)
 
         # выводим статистику
-        print(f"✅ Сохранено {len(avg_vecs)} усреднённых лиц в векторную БД ({save_dir})")
+        logger.info(f"✅ Сохранено {len(avg_vecs)} усреднённых лиц в векторную БД ({save_dir})")
+
 

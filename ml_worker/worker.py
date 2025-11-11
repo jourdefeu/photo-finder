@@ -3,6 +3,10 @@ import shutil
 import json
 from update import update_db            # реализуется сравнение и усреднение (+ обновление векторов существующего пользователя)
 from detector import FaceDetector       # класс-детект
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def save_user_photos(cluster_metadata, raw_photos_dir, users_dir):
     """
@@ -36,9 +40,9 @@ def save_user_photos(cluster_metadata, raw_photos_dir, users_dir):
             
             # Пропускаем предупреждения для старых legacy-фото, которых уже нет
             if not found and not photo_id.startswith("legacy_"):
-                print(f"⚠️ Фото {photo_id} не найдено в {raw_photos_dir}")
+                logger.error(f"Фото {photo_id} не найдено в {raw_photos_dir}")
 
-    print(f"Фото {len(cluster_metadata)} пользователей сохранены в {users_dir}")
+    logger.info(f"Фото {len(cluster_metadata)} пользователей сохранены в {users_dir}")
 
 if __name__ == "__main__":
     detector = FaceDetector(device="cpu")
@@ -73,7 +77,7 @@ if __name__ == "__main__":
         # --- 2. Добавляем все новые лица в базу одной функцией ---
         returned_meta = update_db(all_new_faces)  # update_db умеет принимать список
 
-        print(f"✅ Векторная база успешно обновлена: {vector_dir}")
+        logger.info(f"Векторная база успешно обновлена: {vector_dir}")
 
         # --- 3. Сохраняем фотографии пользователей ---
         if os.path.exists(cluster_metadata_dir):
@@ -82,4 +86,5 @@ if __name__ == "__main__":
 
             save_user_photos(cluster_metadata, input_dir, users_dir)
     else:
-        print("⚠️ Новых лиц для добавления не найдено.")
+
+        logger.info("Новых лиц для добавления не найдено.")

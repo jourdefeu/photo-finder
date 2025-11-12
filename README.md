@@ -18,7 +18,7 @@
 python -m venv photofinder_venv
 ```
 ```
-photo_finder\Scripts\activate
+photofinder_venv\Scripts\activate
 ```
 
 Установите необходимые зависимости:

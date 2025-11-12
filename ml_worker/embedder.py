@@ -114,6 +114,7 @@ class FaceEmbeddingDatabaseFAISS:
             json.dump(meta, f, ensure_ascii=False, indent=2)
 
         # выводим статистику
-        logger.info(f"✅ Сохранено {len(avg_vecs)} усреднённых лиц в векторную БД ({save_dir})")
+        logger.info(f"Сохранено {len(avg_vecs)} усреднённых лиц в векторную БД ({save_dir})")
+
 
 
